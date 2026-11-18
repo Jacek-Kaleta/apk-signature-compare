@@ -1,0 +1,2237 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Porównywarka podpisów APK</title>
+<style>
+    :root {
+      --bg: #f6f6f3;
+      --card: #fff;
+      --tx: #1c1c1a;
+      --mut: #6b6b66;
+      --bd: #dcdcd5;
+      --ac: #2f5bd8;
+      --ok: #1d7a3c;
+      --okb: #e3f4e8;
+      --wa: #8a5a00;
+      --wab: #fff1d6;
+      --ba: #b3261e;
+      --bab: #fde7e5;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    @media (prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #151514;
+        --card: #202020;
+        --tx: #ececE8;
+        --mut: #9a9a93;
+        --bd: #3a3a36;
+        --ac: #7d9cff;
+        --ok: #6fd08c;
+        --okb: #173222;
+        --wa: #f0c36a;
+        --wab: #3a2e12;
+        --ba: #ff8a80;
+        --bab: #3d1a18;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #151514;
+      --card: #202020;
+      --tx: #ececE8;
+      --mut: #9a9a93;
+      --bd: #3a3a36;
+      --ac: #7d9cff;
+      --ok: #6fd08c;
+      --okb: #173222;
+      --wa: #f0c36a;
+      --wab: #3a2e12;
+      --ba: #ff8a80;
+      --bab: #3d1a18;
+    }
+
+    html {
+      scroll-padding-top: env(safe-area-inset-top, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--tx);
+      font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+
+    main {
+      width: 85%;
+      margin: 0 auto;
+      padding: 20px 0 48px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 4px;
+    }
+
+    h2 {
+      font-size: 17px;
+      margin: 0 0 10px;
+    }
+
+    p.lead {
+      color: var(--mut);
+      margin: 0 0 18px;
+    }
+
+    :root[data-theme="light"] {
+      color-scheme: light;
+    }
+
+    .ctl {
+      display: flex;
+      gap: 8px;
+      flex: none;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .lang {
+      display: flex;
+      gap: 4px;
+    }
+
+    .lang button {
+      margin: 0;
+      padding: 5px 11px;
+      font-size: 13px;
+      background: transparent;
+      color: var(--mut);
+      border: 1px solid var(--bd);
+    }
+
+    .lang button.on {
+      background: var(--ac);
+      color: #fff;
+      border-color: var(--ac);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+      align-items: stretch;
+    }
+
+    .grid .card {
+      margin-bottom: 0;
+    }
+
+    .grid.one {
+      grid-template-columns: 1fr;
+    }
+
+    .col {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .col .card {
+      margin-bottom: 0;
+    }
+
+    @media(max-width:700px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+      min-width: 0;
+    }
+
+    .drop {
+      border: 2px dashed var(--bd);
+      border-radius: 12px;
+      padding: 22px 12px;
+      text-align: center;
+      cursor: pointer;
+      background: var(--card);
+      transition: .15s;
+      height: 100%;
+    }
+
+    .drop.over,.drop:hover {
+      border-color: var(--ac);
+    }
+
+    .drop b {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .drop small {
+      color: var(--mut);
+    }
+
+    .drop .fn {
+      color: var(--ac);
+      word-break: break-all;
+      margin-top: 6px;
+      display: block;
+    }
+
+    input[type=file] {
+      display: none;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin: 6px 0 4px;
+    }
+
+    input[type=text] {
+      width: 100%;
+      padding: 9px 10px;
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      background: var(--card);
+      color: var(--tx);
+      font: 13px ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    select {
+      width: 100%;
+      padding: 9px 10px;
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      background: var(--card);
+      color: var(--tx);
+      font: 14px inherit;
+      margin-bottom: 8px;
+    }
+
+    button {
+      background: var(--ac);
+      color: #fff;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font: 600 15px inherit;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    button:disabled {
+      opacity: .45;
+      cursor: default;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 99px;
+      font-size: 12.5px;
+      font-weight: 600;
+      flex: none;
+    }
+
+    .ok {
+      background: var(--okb);
+      color: var(--ok);
+    }
+
+    .warn {
+      background: var(--wab);
+      color: var(--wa);
+    }
+
+    .bad {
+      background: var(--bab);
+      color: var(--ba);
+    }
+
+    .neu {
+      background: var(--bd);
+      color: var(--mut);
+    }
+
+    .verd {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 9px 11px;
+      border-radius: 9px;
+      margin: 7px 0;
+    }
+
+    .verd.ok {
+      background: var(--okb);
+    }
+
+    .verd.warn {
+      background: var(--wab);
+    }
+
+    .verd.bad {
+      background: var(--bab);
+    }
+
+    .verd span {
+      color: var(--tx);
+      min-width: 0;
+      word-break: break-word;
+    }
+
+    dl {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 4px 10px;
+      margin: 8px 0;
+    }
+
+    dt {
+      color: var(--mut);
+    }
+
+    dd {
+      margin: 0;
+      word-break: break-word;
+    }
+
+    .mono {
+      font: 12.5px ui-monospace, Menlo, Consolas, monospace;
+      word-break: break-all;
+    }
+
+    .signer {
+      border-top: 1px solid var(--bd);
+      margin-top: 10px;
+      padding-top: 8px;
+    }
+
+    .muted {
+      color: var(--mut);
+      font-size: 13px;
+    }
+
+    a {
+      color: var(--ac);
+    }
+
+    #out {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<main>
+<div class="top">
+  <div><h1>🔏 <span data-i="title"></span></h1><p class="lead" data-i="lead"></p></div>
+  <div class="ctl">
+    <div class="lang">
+      <button id="btl" type="button">☀</button>
+      <button id="btd" type="button">☾</button>
+    </div>
+    <div class="lang">
+      <button id="bpl" type="button">PL</button>
+      <button id="ben" type="button">EN</button>
+    </div>
+  </div>
+</div>
+
+<div class="grid">
+  <div>
+    <div class="drop" id="dA" tabindex="0">
+      <b data-i="dropA"></b>
+      <small data-i="hint"></small>
+      <span class="fn" id="nA"></span>
+    </div>
+    <input type="file" id="fA">
+  </div>
+  <div>
+    <div class="drop" id="dB" tabindex="0">
+      <b data-i="dropB"></b>
+      <small data-i="hint"></small>
+      <span class="fn" id="nB"></span>
+    </div>
+    <input type="file" id="fB">
+  </div>
+</div>
+<div class="card">
+  <label for="exp" data-i="expL"></label>
+  <select id="kn"></select>
+  <input type="text" id="exp" autocomplete="off" spellcheck="false">
+  <p class="muted" data-i="knNote" style="margin:8px 0 0"></p>
+  <button id="go" disabled data-i="go"></button>
+  <span class="muted" id="st" style="margin-left:10px"></span>
+</div>
+
+<div id="out">
+  <div class="card"><h2 data-i="res"></h2><div id="verd"></div></div>
+  <div class="grid" id="det"></div>
+  <div class="card muted" id="notes"></div>
+</div>
+</main>
+<script>
+    "use strict";
+
+    /**
+     * @file Porównywarka podpisów APK – czysty JavaScript, bez bibliotek, działa lokalnie w przeglądarce.
+     * @description Odczytuje podpisy APK (v1/JAR, v2, v3, v3.1), certyfikaty X.509 i ich odciski, weryfikuje
+     * integralność (v2/v3: podpis + skrót zawartości; v1: .SF, MANIFEST.MF i skróty plików), porównuje dwa pliki,
+     * rozpoznaje znane certyfikaty i obsługuje paczki (.apk+, .apks, .xapk, .apkm). Pliki nie są nigdzie wysyłane.
+     *
+     * @typedef {Object} Cert
+     * @property {Uint8Array} der certyfikat DER
+     * @property {string} subject podmiot
+     * @property {string} issuer wystawca
+     * @property {Date} from początek ważności
+     * @property {Date} to koniec ważności
+     * @property {string} serial numer seryjny (hex)
+     * @property {string} key typ klucza, np. „RSA 2048 bit”
+     * @property {string} keyOid OID algorytmu klucza
+     * @property {?Array} curve [nazwa, rozmiar] dla kluczy EC
+     * @property {Uint8Array} spki SubjectPublicKeyInfo (do importu w WebCrypto)
+     * @property {string} fp SHA-256 certyfikatu (hex z dwukropkami)
+     * @property {string} fp1 SHA-1 certyfikatu
+     * @property {boolean} selfSigned czy podmiot = wystawca
+     *
+     * @typedef {{k:string,a:Array}} Msg komunikat niezależny od języka
+     * @typedef {{ok:(boolean|null),msg:Msg}} Verdict true = poprawny, false = błąd/modyfikacja, null = nie zweryfikowano
+     * @typedef {{scheme:string,cert:Cert,v:Verdict,lineage?:Cert[]}} Signer
+     * @typedef {Object} AnalysisResult
+     * @property {string} name nazwa pliku
+     * @property {number} size rozmiar w bajtach
+     * @property {string} fileSha SHA-256 pliku
+     * @property {string[]} schemes wykryte schematy podpisu
+     * @property {Signer[]} signers podpisujący
+     * @property {Msg[]} notes uwagi
+     * @property {Msg[]} [alerts] alarmy (np. split z innym certyfikatem)
+     * @property {Array} [parts] APK z paczki: {name, r, same} lub {name, err}
+     */
+
+    /**
+     * Skrót do document.querySelector.
+     * @param {string} s selektor CSS
+     * @returns {Element|null}
+     */
+    const $ = s => document.querySelector(s);
+
+    /**
+     * Tworzy element DOM. Teksty trafiają jako węzły tekstowe (bezpiecznie dla danych z certyfikatów).
+     * @param {string} t nazwa znacznika
+     * @param {?Object} a atrybuty (klucz „class” ustawia className)
+     * @param {...(Node|string|number|Array|null)} c potomkowie (tablice są spłaszczane, null pomijany)
+     * @returns {HTMLElement}
+     */
+    function h(t, a, ...c) {
+      const e = document.createElement(t);
+      for (const k in a || {}) {
+        k === "class" ? e.className = a[k] : e.setAttribute(k, a[k]);
+      }
+      for (const x of c.flat()) {
+        if (x == null)
+          continue;
+        e.append(x.nodeType ? x : document.createTextNode(String(x)));
+      }
+      return e;
+    }
+
+    /**
+     * Zamienia bajty na zapis szesnastkowy (wielkie litery).
+     * @param {Uint8Array} b bajty
+     * @param {string} [sep=""] separator, np. ":"
+     * @returns {string}
+     */
+    const hex = (b, sep = "") => [...b].map(x => x.toString(16).padStart(2, "0")).join(sep).toUpperCase();
+
+    /**
+     * Liczy skrót przez WebCrypto (wymaga bezpiecznego kontekstu, np. HTTPS).
+     * @param {string} n algorytm, np. "SHA-256"
+     * @param {BufferSource} d dane
+     * @returns {Promise<Uint8Array>}
+     */
+    const sha = async (n, d) => new Uint8Array(await crypto.subtle.digest(n, d));
+
+    /**
+     * Porównuje dwie tablice bajtów.
+     * @param {Uint8Array} a
+     * @param {Uint8Array} b
+     * @returns {boolean}
+     */
+    const eq = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+
+    /* ---------- i18n ---------- */
+
+    /**
+     * Słownik tłumaczeń interfejsu i komunikatów analizy (pl, en). Klucze używane są przez t() i M().
+     * @type {Object<string,Object<string,string>>}
+     */
+    const L = {
+      pl: {
+        bundle: "Plik jest archiwum z {1} plikami APK (np. .apk+, .apks, .xapk, .apkm) – za główny uznano „{0}”.",
+        lin: "Historia rotacji klucza – {0} ({1} certyfikatów)",
+        linNote: "Od najstarszego do bieżącego, odczytane z atrybutu podpisu v3. Podpisy łańcucha nie są weryfikowane.",
+        linCur: "bieżący",
+        recLin: "Plik {0}: w historii rotacji klucza jest certyfikat rozpoznany jako {1} – bieżący klucz jest jego następcą (podpisy łańcucha nie były weryfikowane).",
+        parts: "Pliki APK w pakiecie ({0})",
+        diffCert: "Inny certyfikat",
+        bundleInfo: "Dane z pakietu: {0} · {1} · wersja {2} (kod {3}).",
+        splitOk: "Pozostałe pliki APK z pakietu ({0}) mają ten sam certyfikat co plik główny i poprawne podpisy.",
+        splitBad: "Uwaga: te pliki APK z pakietu mają inny certyfikat lub niepoprawny podpis w porównaniu z plikiem głównym: {0}.",
+        cOne: "Analiza pliku",
+        hintOne: "Wskazano jeden plik. Podaj znany odcisk SHA-256 (lub wybierz go z listy), aby sprawdzić pochodzenie, albo wskaż drugi plik, aby porównać certyfikaty.",
+        knPick: "— lub wybierz znany odcisk z listy —",
+        knNote: "Lista zawiera tylko odciski znalezione w publicznych źródłach (wydruki apksigner, APKMirror, zgłoszenia na GitHubie) – nie pochodzą od producentów i mogą być niekompletne. Najpewniejszym wzorcem jest oryginalny plik z Twojego urządzenia.",
+        recog: "Rozpoznano: {0}",
+        recVendor: "Plik {0}: certyfikat rozpoznany jako {1}. Źródło wzorca: {2} (nieoficjalne).",
+        recTest: "Plik {0}: podpisany publicznie znanym kluczem testowym AOSP ({1}) – każdy może nim podpisać aplikację, więc nie dowodzi to pochodzenia od producenta.",
+        themeL: "Jasny motyw",
+        themeD: "Ciemny motyw",
+        title: "Porównywarka podpisów APK",
+        lead: "Wskaż dwa pliki APK, aby je porównać: plik ze znanego źródła (A) i plik do sprawdzenia (B). Możesz też wskazać tylko jeden plik – dostaniesz jego analizę i opcjonalne sprawdzenie ze znanym odciskiem. Analiza odbywa się lokalnie w przeglądarce, pliki nie są nigdzie wysyłane.",
+        dropA: "Plik A – zaufany",
+        dropB: "Plik B – do sprawdzenia",
+        hint: "przeciągnij APK lub kliknij",
+        expL: "Opcjonalnie: znany odcisk SHA-256 certyfikatu producenta",
+        expP: "np. 3A:7F:… (z oficjalnej strony producenta)",
+        go: "Analizuj i porównaj",
+        busy: "Analizuję… (duże pliki mogą potrwać chwilę)",
+        res: "Wynik porównania",
+        cA: "Plik A (zaufany)",
+        cB: "Plik B (do sprawdzenia)",
+        file: "Plik",
+        size: "Rozmiar",
+        fsha: "SHA-256 pliku",
+        sch: "Schematy",
+        subj: "Podmiot",
+        iss: "Wystawca",
+        self: " (samopodpisany)",
+        val: "Ważny",
+        ser: "Nr seryjny",
+        key: "Klucz",
+        c256: "SHA-256 cert.",
+        c1: "SHA-1 cert.",
+        pOk: "Podpis OK",
+        pBad: "Podpis/integralność: BŁĄD",
+        pNv: "Nie zweryfikowano",
+        lOk: "OK",
+        lWa: "Uwaga",
+        lBa: "Alarm",
+        fpOf: "SHA-256 certyfikatu {0}",
+        note: "Ważne: certyfikat nie mówi sam z siebie, do jakiej firmy należy – pole „Podmiot” może wpisać każdy. Własność ustala się dopiero przez zgodność odcisku SHA-256 ze znanym plikiem lub z odciskiem opublikowanym przez producenta. Kontrola „modyfikacji po podpisaniu” wykrywa zmiany bez ponownego podpisania; APK przepakowany i podpisany nowym kluczem będzie miał poprawny podpis, ale inny certyfikat.",
+        same: "A i B są podpisane tym samym certyfikatem, czyli tym samym kluczem (SHA-256: {0}). Plik B pochodzi od tego samego podpisującego co zaufany plik A.",
+        sameSubj: "Certyfikaty mają taki sam podmiot, ale RÓŻNE klucze. To typowy objaw przepakowanej lub podrobionej aplikacji – B NIE jest podpisany kluczem zaufanego wydawcy.",
+        diff: "Certyfikaty A i B są różne (inny klucz i inny podmiot). B nie pochodzi od tego samego podpisującego co zaufany plik A.",
+        vBad: "Plik {0}: {1}",
+        intact: "Plik {0}: brak modyfikacji po podpisaniu (podpis zgodny z zawartością).",
+        unk: "Plik {0}: nie udało się ustalić, czy został zmodyfikowany po podpisaniu (zob. komunikat przy podpisie).",
+        dbg: "Plik {0} jest podpisany certyfikatem debug – nie jest to wydanie produkcyjne.",
+        expLen: "Podany odcisk ma {0} znaków hex zamiast 64 – nie porównano.",
+        expOk: "Plik {0} ma certyfikat zgodny z podanym odciskiem producenta.",
+        expNo: "Plik {0} NIE zgadza się z podanym odciskiem producenta.",
+        fileErr: "Plik {0} ({1}): {2}",
+        raw: "{0}",
+        notZip: "Plik {0} nie jest poprawnym archiwum ZIP/APK.",
+        zip64: "ZIP64 nie jest obsługiwany.",
+        noSig: "W pliku {0} nie znaleziono podpisu (APK niepodpisany lub uszkodzony).",
+        noSf: "Brak pliku .SF lub MANIFEST.MF dla tego podpisu.",
+        algH: "Nieobsługiwany algorytm skrótu w podpisie v1.",
+        sfDig: "Skrót pliku .SF nie zgadza się z podpisem – plik .SF został zmodyfikowany.",
+        v1Uns: "Nieobsługiwany typ podpisu v1 (DSA lub RSA-PSS).",
+        v1Bad: "Podpis kryptograficzny v1 jest NIEPOPRAWNY.",
+        mfCh: "MANIFEST.MF został zmieniony po podpisaniu.",
+        mfEx: "MANIFEST.MF zawiera wpisy niepokryte podpisem.",
+        miss: "Brak pliku wymienionego w manifeście: {0}",
+        fmod: "Plik zmodyfikowany po podpisaniu: {0}",
+        fadd: "Plik dodany po podpisaniu: {0}",
+        v1ok: "Podpis v1 poprawny; skróty {0} plików zgadzają się – brak modyfikacji po podpisaniu.",
+        v1okw: "Podpis v1 poprawny; skróty {0} plików zgadzają się – brak modyfikacji po podpisaniu. (Podpis używa słabego SHA-1.)",
+        v1fail: "Nie udało się zweryfikować v1: {0}",
+        sigBad: "Podpis kryptograficzny jest NIEPOPRAWNY.",
+        noDig: "Brak skrótu zawartości dla algorytmu podpisu.",
+        tamper: "Podpis poprawny, ale skrót zawartości się NIE zgadza – plik zmodyfikowany po podpisaniu.",
+        sigOk: "Podpis poprawny, a zawartość pliku zgadza się ze skrótem z podpisu (brak modyfikacji po podpisaniu).",
+        noAlg: "Brak obsługiwanego algorytmu: {0}",
+        rdErr: "Błąd odczytu bloku podpisu v{0}: {1}",
+        rdErr1: "Nie udało się odczytać {0}: {1}",
+        lineage: "Podpis v3 zawiera historię rotacji kluczy (lineage) – analizowany jest bieżący certyfikat.",
+        differ: "Uwaga: różne schematy podpisu w jednym pliku używają RÓŻNYCH certyfikatów – nietypowe i podejrzane."
+      },
+      en: {
+        bundle: "The file is an archive with {1} APK files (e.g. .apk+, .apks, .xapk, .apkm) – “{0}” was taken as the main one.",
+        lin: "Key rotation history – {0} ({1} certificates)",
+        linNote: "Oldest to current, read from the v3 signature attribute. The chain’s signatures are not verified.",
+        linCur: "current",
+        recLin: "File {0}: the key rotation history contains a certificate recognized as {1} – the current key is its successor (the chain signatures were not verified).",
+        parts: "APK files in the bundle ({0})",
+        diffCert: "Different certificate",
+        bundleInfo: "Bundle info: {0} · {1} · version {2} (code {3}).",
+        splitOk: "The other APK files in the bundle ({0}) have the same certificate as the main file and valid signatures.",
+        splitBad: "Warning: these APK files in the bundle have a different certificate or an invalid signature compared to the main file: {0}.",
+        cOne: "File analysis",
+        hintOne: "One file selected. Enter a known SHA-256 fingerprint (or pick one from the list) to check its origin, or select a second file to compare certificates.",
+        knPick: "— or pick a known fingerprint —",
+        knNote: "The list contains only fingerprints found in public sources (apksigner printouts, APKMirror, GitHub issues) – they do not come from the vendors and may be incomplete. The most reliable reference is the original file from your own device.",
+        recog: "Recognized: {0}",
+        recVendor: "File {0}: certificate recognized as {1}. Reference source: {2} (unofficial).",
+        recTest: "File {0}: signed with a publicly known AOSP test key ({1}) – anyone can sign an app with it, so it does not prove the vendor’s origin.",
+        themeL: "Light theme",
+        themeD: "Dark theme",
+        title: "APK signature comparer",
+        lead: "Select two APK files to compare: one from a known source (A) and one to check (B). You can also select just one file – you will get its analysis and an optional check against a known fingerprint. The analysis runs locally in your browser; the files are not uploaded anywhere.",
+        dropA: "File A – trusted",
+        dropB: "File B – to check",
+        hint: "drag an APK here or click",
+        expL: "Optional: known SHA-256 fingerprint of the vendor’s certificate",
+        expP: "e.g. 3A:7F:… (from the vendor’s official site)",
+        go: "Analyze and compare",
+        busy: "Analyzing… (large files may take a moment)",
+        res: "Comparison result",
+        cA: "File A (trusted)",
+        cB: "File B (to check)",
+        file: "File",
+        size: "Size",
+        fsha: "File SHA-256",
+        sch: "Schemes",
+        subj: "Subject",
+        iss: "Issuer",
+        self: " (self-signed)",
+        val: "Valid",
+        ser: "Serial no.",
+        key: "Key",
+        c256: "Cert SHA-256",
+        c1: "Cert SHA-1",
+        pOk: "Signature OK",
+        pBad: "Signature/integrity: ERROR",
+        pNv: "Not verified",
+        lOk: "OK",
+        lWa: "Caution",
+        lBa: "Alert",
+        fpOf: "Certificate SHA-256 {0}",
+        note: "Important: a certificate does not by itself say which company it belongs to – anyone can fill in the “Subject” field. Ownership is established only by matching the SHA-256 fingerprint against a known file or a fingerprint published by the vendor. The “modified after signing” check detects changes made without re-signing; an APK repackaged and signed with a new key will have a valid signature but a different certificate.",
+        same: "A and B are signed with the same certificate, i.e. the same key (SHA-256: {0}). File B comes from the same signer as the trusted file A.",
+        sameSubj: "The certificates have the same subject but DIFFERENT keys. This is a typical sign of a repackaged or forged app – B is NOT signed with the trusted publisher’s key.",
+        diff: "Certificates A and B differ (different key and different subject). B does not come from the same signer as the trusted file A.",
+        vBad: "File {0}: {1}",
+        intact: "File {0}: not modified after signing (signature matches the contents).",
+        unk: "File {0}: could not determine whether it was modified after signing (see the message at the signature).",
+        dbg: "File {0} is signed with a debug certificate – this is not a production release.",
+        expLen: "The fingerprint you entered has {0} hex characters instead of 64 – not compared.",
+        expOk: "File {0} has a certificate matching the vendor fingerprint you entered.",
+        expNo: "File {0} does NOT match the vendor fingerprint you entered.",
+        fileErr: "File {0} ({1}): {2}",
+        raw: "{0}",
+        notZip: "File {0} is not a valid ZIP/APK archive.",
+        zip64: "ZIP64 is not supported.",
+        noSig: "No signature found in file {0} (unsigned or corrupted APK).",
+        noSf: "The .SF file or MANIFEST.MF is missing for this signature.",
+        algH: "Unsupported digest algorithm in the v1 signature.",
+        sfDig: "The .SF file digest does not match the signature – the .SF file was modified.",
+        v1Uns: "Unsupported v1 signature type (DSA or RSA-PSS).",
+        v1Bad: "The v1 cryptographic signature is INVALID.",
+        mfCh: "MANIFEST.MF was modified after signing.",
+        mfEx: "MANIFEST.MF contains entries not covered by the signature.",
+        miss: "File listed in the manifest is missing: {0}",
+        fmod: "File modified after signing: {0}",
+        fadd: "File added after signing: {0}",
+        v1ok: "v1 signature valid; digests of {0} files match – not modified after signing.",
+        v1okw: "v1 signature valid; digests of {0} files match – not modified after signing. (The signature uses weak SHA-1.)",
+        v1fail: "Could not verify v1: {0}",
+        sigBad: "The cryptographic signature is INVALID.",
+        noDig: "No content digest for the signature algorithm.",
+        tamper: "Signature is valid, but the content digest does NOT match – the file was modified after signing.",
+        sigOk: "Signature is valid and the file contents match the digest in the signature (not modified after signing).",
+        noAlg: "No supported algorithm: {0}",
+        rdErr: "Error reading v{0} signing block: {1}",
+        rdErr1: "Could not read {0}: {1}",
+        lineage: "The v3 signature contains a key rotation history (lineage) – the current certificate is analyzed.",
+        differ: "Caution: different signature schemes in one file use DIFFERENT certificates – unusual and suspicious."
+      }
+    };
+
+    /**
+     * Bieżący język interfejsu („pl” lub „en”); wybór jest zapamiętywany w localStorage.
+     * @type {string}
+     */
+    let lang = "pl";
+    try {
+      const s = localStorage.getItem("apkLang");
+      lang = s || ((navigator.language || "").toLowerCase().startsWith("pl") ? "pl" : "en");
+    }
+    catch (_) { }
+    if (!L[lang])
+      lang = "pl";
+
+    /**
+     * Tłumaczy klucz na bieżący język; {0}, {1}… zastępuje argumentami.
+     * @param {string} k klucz
+     * @param {...*} a argumenty
+     * @returns {string}
+     */
+    const t = (k, ...a) => {
+      let s = L[lang][k] ?? L.pl[k] ?? k;
+      a.forEach((x, i) => {
+        s = s.split("{" + i + "}").join(x);
+      });
+      return s;
+    };
+
+    /**
+     * Tworzy komunikat niezależny od języka (tłumaczony dopiero przy wyświetlaniu, więc zmiana języka działa na gotowych wynikach).
+     * @param {string} k klucz
+     * @param {...*} a argumenty
+     * @returns {Msg}
+     */
+    const M = (k, ...a) => ({ k, a });
+
+    /**
+     * Tłumaczy komunikat utworzony przez M().
+     * @param {Msg} m
+     * @returns {string}
+     */
+    const tx = m => t(m.k, ...m.a);
+
+    /**
+     * Tworzy błąd z komunikatem tłumaczonym i opcjonalnymi uwagami.
+     * @param {Msg} m komunikat
+     * @param {Msg[]} [notes] dodatkowe uwagi
+     * @returns {Error}
+     */
+    const E = (m, notes) => Object.assign(new Error(m.k), { m, notes: notes || [] });
+
+    /**
+     * Wbudowane znane odciski certyfikatów (nieoficjalne źródła, patrz SRCURL). Wpis z test:1 to publiczny klucz testowy AOSP.
+     * @type {Array<{name:string,desc?:string,sha256?:string,sha1?:string,src:string,test?:number}>}
+     */
+    const KNOWN = [
+      {
+        name: "Samsung Electronics",
+        desc: "Samsung Cert (Samsung Corporation, Suwon City)",
+        sha256: "34df0e7a9f1cf1892e45c056b4973cd81ccf148a4050d11aea4ac5a65f900a42",
+        sha1: "9ca5170f381919dfe0446fcdab18b19a143b3163",
+        src: "APKMirror; GitHub onyxbits/raccoon4 #125"
+      },
+      {
+        name: "Google",
+        desc: "CN=Android, O=Google Inc., Mountain View",
+        sha256: "f0fd6c5b410f25cb25c3b53346c8972fae30f8ee7411df910480ad6b2d60db83",
+        sha1: "38918a453d07199354f8b19af05ec6562ced5788",
+        src: "GitHub Apktool #2687"
+      },
+      {
+        name: "AOSP testkey",
+        test: 1,
+        sha1: "61ed377e85d386a8dfee6b864bd85b0bfaa5af81",
+        src: "HydraDragonAV wiki"
+      },
+      {
+        name: "AOSP platform (test)",
+        test: 1,
+        sha1: "e128ad41ba48b993ea696f801c36c7c41e1a9c6c",
+        src: "HydraDragonAV wiki"
+      },
+      {
+        name: "AOSP shared (test)",
+        test: 1,
+        sha1: "a9fe368a91c9eab8187722c1c97fd35c959ed03e",
+        src: "HydraDragonAV wiki"
+      },
+      {
+        name: "AOSP media (test)",
+        test: 1,
+        sha1: "3b1c59c13173a4a4c0e896af3df999568145d2fa",
+        src: "HydraDragonAV wiki"
+      }
+    ];
+
+    /**
+     * Adresy źródeł odcisków z KNOWN, kluczowane tekstem z pola src.
+     * @type {Object<string,Array<[string,string]>>}
+     */
+    const SRCURL = {
+      "APKMirror; GitHub onyxbits/raccoon4 #125": [
+        [
+          "APKMirror",
+          "https://www.apkmirror.com/apk/samsung-electronics-co-ltd/fingerprint/fingerprint-1-1-0-release/fingerprint-1-1-0-2-android-apk-download/"
+        ],
+        ["GitHub onyxbits/raccoon4 #125", "https://github.com/onyxbits/raccoon4/issues/125"]
+      ],
+      "GitHub Apktool #2687": [["GitHub Apktool #2687", "https://github.com/iBotPeaches/Apktool/issues/2687"]],
+      "HydraDragonAV wiki": [
+        [
+          "HydraDragonAV wiki",
+          "https://github.com/HydraDragonAntivirus/HydraDragonAV-Mobile/wiki/Detection-Engines"
+        ]
+      ]
+    };
+
+    /**
+     * Zamienia nazwę źródła w tekście na klikalne linki (wg SRCURL).
+     * @param {*} x tekst lub węzeł
+     * @returns {*} tablica węzłów albo niezmieniony argument
+     */
+    function linkify(x) {
+      if (typeof x !== "string")
+        return x;
+      for (const key in SRCURL) {
+        const i = x.indexOf(key);
+        if (i < 0)
+          continue;
+        const links = [];
+        SRCURL[key].forEach(([l, u], j) => {
+          if (j)
+            links.push("; ");
+          links.push(h("a", { href: u, target: "_blank", rel: "noopener noreferrer" }, l));
+        });
+        return [x.slice(0, i), ...links, x.slice(i + key.length)];
+      }
+      return x;
+    }
+
+    /**
+     * Normalizuje odcisk: tylko cyfry hex, małe litery.
+     * @param {string} s
+     * @returns {string}
+     */
+    const nrm = s => s.replace(/[^0-9a-f]/gi, "").toLowerCase();
+
+    /**
+     * Szuka certyfikatu na liście KNOWN (po SHA-256 lub SHA-1).
+     * @param {Cert} c
+     * @returns {(Object|undefined)} pasujący wpis
+     */
+    const findKnown = c => KNOWN.find(
+      k => (k.sha256 && nrm(c.fp) === k.sha256) || (k.sha1 && nrm(c.fp1) === k.sha1)
+    );
+    $("#kn").onchange = e => {
+      $("#exp").value = e.target.value ? e.target.value.toUpperCase().match(/../g).join(":") : "";
+    };
+    $("#exp").oninput = () => {
+      $("#kn").value = "";
+    };
+
+    /**
+     * Ostatni wynik analizy {oks, errs}; pozwala przerysować wyniki po zmianie języka.
+     * @type {?{oks:AnalysisResult[],errs:Object[]}}
+     */
+    let last = null;
+
+    /* ---------- DER / X.509 ---------- */
+
+    /**
+     * Czyta jeden element DER (tag, długość, zakres wartości).
+     * @param {Uint8Array} b dane
+     * @param {number} o przesunięcie początku elementu
+     * @returns {{tag:number,len:number,start:number,end:number,off:number}}
+     */
+    function tlv(b, o) {
+      let tag = b[o], l = b[o + 1], hd = 2;
+      if (l & 0x80) {
+        const n = l & 0x7f;
+        l = 0;
+        for (let i = 0; i < n; i++)
+          l = l * 256 + b[o + 2 + i];
+        hd = 2 + n;
+      }
+      return { tag, len: l, start: o + hd, end: o + hd + l, off: o };
+    }
+
+    /**
+     * Zwraca bezpośrednie elementy potomne elementu DER.
+     * @param {Uint8Array} b
+     * @param {Object} t element z tlv()
+     * @returns {Object[]}
+     */
+    function kids(b, t) {
+      const r = [];
+      let p = t.start;
+      while (p < t.end) {
+        const c = tlv(b, p);
+        r.push(c);
+        p = c.end;
+      }
+      return r;
+    }
+
+    /**
+     * Dekoduje identyfikator OID do postaci „1.2.840…”.
+     * @param {Uint8Array} b
+     * @param {Object} t element OID
+     * @returns {string}
+     */
+    function oid(b, t) {
+      const v = b.subarray(t.start, t.end);
+      const r = [Math.floor(v[0] / 40), v[0] % 40];
+      let n = 0;
+      for (let i = 1; i < v.length; i++) {
+        n = n * 128 + (v[i] & 0x7f);
+        if (!(v[i] & 0x80)) {
+          r.push(n);
+          n = 0;
+        }
+      }
+      return r.join(".");
+    }
+
+    /**
+     * Skróty nazw atrybutów podmiotu/wystawcy (OID → CN, O, …).
+     * @type {Object<string,string>}
+     */
+    const DN = {
+      "2.5.4.3": "CN",
+      "2.5.4.6": "C",
+      "2.5.4.7": "L",
+      "2.5.4.8": "ST",
+      "2.5.4.10": "O",
+      "2.5.4.11": "OU",
+      "1.2.840.113549.1.9.1": "E"
+    };
+
+    /**
+     * Zamienia Name (X.509) na tekst „CN=…, O=…”.
+     * @param {Uint8Array} b
+     * @param {Object} t element Name
+     * @returns {string}
+     */
+    function dname(b, t) {
+      const parts = [];
+      for (const rdn of kids(b, t))
+        for (const atv of kids(b, rdn)) {
+          const k = kids(b, atv);
+          const v = k[1];
+          const raw = b.subarray(v.start, v.end);
+          const s = v.tag === 0x1e
+            ? new TextDecoder("utf-16be").decode(raw)
+            : new TextDecoder().decode(raw);
+          const o = oid(b, k[0]);
+          parts.push((DN[o] || o) + "=" + s);
+        }
+      return parts.join(", ");
+    }
+
+    /**
+     * Dekoduje UTCTime/GeneralizedTime.
+     * @param {Uint8Array} b
+     * @param {Object} t
+     * @returns {Date}
+     */
+    function dtime(b, t) {
+      const s = new TextDecoder().decode(b.subarray(t.start, t.end));
+      let y, r;
+      if (t.tag === 0x17) {
+        y = +s.slice(0, 2);
+        y += y < 50 ? 2000 : 1900;
+        r = s.slice(2);
+      }
+      else {
+        y = +s.slice(0, 4);
+        r = s.slice(4);
+      }
+      return new Date(
+        Date.UTC(y, +r.slice(0, 2) - 1, +r.slice(2, 4), +r.slice(4, 6), +r.slice(6, 8), +r.slice(8, 10))
+      );
+    }
+
+    /**
+     * Obsługiwane krzywe EC: OID → [nazwa WebCrypto, rozmiar współrzędnej w bajtach].
+     * @type {Object<string,[string,number]>}
+     */
+    const CURVES = {
+      "1.2.840.10045.3.1.7": ["P-256", 32],
+      "1.3.132.0.34": ["P-384", 48],
+      "1.3.132.0.35": ["P-521", 66]
+    };
+
+    /**
+     * Parsuje certyfikat X.509 (DER): podmiot, wystawca, ważność, numer seryjny, typ klucza, odciski SHA-256/SHA-1.
+     * @param {Uint8Array} der certyfikat w DER
+     * @returns {Promise<Cert>}
+     */
+    async function parseCert(der) {
+      const c = tlv(der, 0);
+      const tbs = kids(der, c)[0];
+      const k = kids(der, tbs);
+      const i = k[0].tag === 0xa0 ? 1 : 0;
+      const ser = k[i], iss = k[i + 2], val = k[i + 3], sub = k[i + 4], spki = k[i + 5];
+      const sk = kids(der, spki);
+      const ak = kids(der, sk[0]);
+      const ao = oid(der, ak[0]);
+      let key = "?", curve = null;
+      if (ao === "1.2.840.113549.1.1.1") {
+        const inner = tlv(der, sk[1].start + 1);
+        const n = kids(der, inner)[0];
+        let len = n.end - n.start;
+        if (der[n.start] === 0)
+          len--;
+        key = "RSA " + len * 8 + " bit";
+      }
+      else if (ao === "1.2.840.10045.2.1") {
+        curve = CURVES[oid(der, ak[1])];
+        key = "EC " + (curve ? curve[0] : "?");
+      }
+      else if (ao === "1.2.840.10040.4.1")
+        key = "DSA";
+      const vk = kids(der, val);
+      return {
+        der,
+        subject: dname(der, sub),
+        issuer: dname(der, iss),
+        from: dtime(der, vk[0]),
+        to: dtime(der, vk[1]),
+        serial: hex(der.subarray(ser.start, ser.end)),
+        key,
+        keyOid: ao,
+        curve,
+        spki: der.slice(spki.off, spki.end),
+        fp: hex(await sha("SHA-256", der), ":"),
+        fp1: hex(await sha("SHA-1", der), ":"),
+        selfSigned: dname(der, sub) === dname(der, iss)
+      };
+    }
+
+    /**
+     * Zamienia podpis ECDSA z DER na format r||s wymagany przez WebCrypto.
+     * @param {Uint8Array} sig podpis w DER
+     * @param {number} size rozmiar współrzędnej w bajtach
+     * @returns {Uint8Array}
+     */
+    function derToRaw(sig, size) {
+      const s = tlv(sig, 0);
+      const [r, q] = kids(sig, s);
+      const f = t => {
+        let v = sig.slice(t.start, t.end);
+        while (v.length > size && v[0] === 0)
+          v = v.slice(1);
+        const o = new Uint8Array(size);
+        o.set(v, size - v.length);
+        return o;
+      };
+      const o = new Uint8Array(size * 2);
+      o.set(f(r));
+      o.set(f(q), size);
+      return o;
+    }
+
+    /* ---------- APK ---------- */
+
+    /**
+     * Algorytmy podpisu APK v2/v3: id → [skrót, rodzaj (pss|pkcs|ec|dsa), długość soli dla PSS].
+     * @type {Object<number,Array>}
+     */
+    const ALG = {
+      0x101: ["SHA-256", "pss", 32],
+      0x102: ["SHA-512", "pss", 64],
+      0x103: ["SHA-256", "pkcs"],
+      0x104: ["SHA-512", "pkcs"],
+      0x201: ["SHA-256", "ec"],
+      0x202: ["SHA-512", "ec"],
+      0x301: ["SHA-256", "dsa"]
+    };
+
+    /**
+     * Rozpakowuje dane deflate (surowe) przez DecompressionStream.
+     * @param {Uint8Array} raw
+     * @returns {Promise<Uint8Array>}
+     */
+    async function inflate(raw) {
+      return new Uint8Array(
+        await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer()
+      );
+    }
+
+    /**
+     * Analizuje APK (ZIP): odczytuje podpisy v1/v2/v3/v3.1, certyfikaty, historię rotacji i sprawdza integralność. Dla paczek (.apk+, .apks, .xapk, .apkm) bez własnego podpisu analizuje każdy APK ze środka.
+     * @param {{name:string,size:number,arrayBuffer:function():Promise<ArrayBuffer>}} file plik lub obiekt o tym samym interfejsie
+     * @returns {Promise<AnalysisResult>}
+     * @throws {Error} z polami m (Msg) i notes, gdy plik nie jest ZIP/APK lub nie ma podpisu
+     */
+    async function analyze(file) {
+      const buf = await file.arrayBuffer();
+      const b = new Uint8Array(buf);
+      const dv = new DataView(buf);
+      const R = {
+        name: file.name,
+        size: file.size,
+        fileSha: hex(await sha("SHA-256", buf), ":"),
+        schemes: [],
+        signers: [],
+        notes: []
+      };
+      let eo = -1;
+      for (let i = b.length - 22; i >= Math.max(0, b.length - 65557); i--) {
+        if (dv.getUint32(i, true) === 0x06054b50) {
+          eo = i;
+          break;
+        }
+      }
+      if (eo < 0)
+        throw E(M("notZip", file.name));
+      const cdOff = dv.getUint32(eo + 16, true), cnt = dv.getUint16(eo + 10, true);
+      if (cdOff === 0xffffffff)
+        throw E(M("zip64"));
+      const entries = [];
+      let p = cdOff;
+      for (let i = 0; i < cnt && dv.getUint32(p, true) === 0x02014b50; i++) {
+        const nl = dv.getUint16(
+          p + 28,
+          true
+        ), el = dv.getUint16(
+          p + 30,
+          true
+        ), cl = dv.getUint16(
+          p + 32,
+          true
+        );
+        entries.push(
+          {
+            name: new TextDecoder().decode(b.subarray(p + 46, p + 46 + nl)),
+            method: dv.getUint16(p + 10, true),
+            csize: dv.getUint32(p + 20, true),
+            lho: dv.getUint32(p + 42, true)
+          }
+        );
+        p += 46 + nl + el + cl;
+      }
+      /**
+       * Zwraca rozpakowaną zawartość wpisu ZIP.
+       * @param {{lho:number,csize:number,method:number}} e wpis katalogu centralnego
+       * @returns {Promise<Uint8Array>}
+       */
+      async function data(e) {
+        const l = e.lho;
+        const ds = l + 30 + dv.getUint16(l + 26, true) + dv.getUint16(l + 28, true);
+        const raw = b.subarray(ds, ds + e.csize);
+        return e.method === 0 ? raw : inflate(raw);
+      }
+      /* weryfikacja v1 */
+      /**
+       * OID algorytmu skrótu → nazwa WebCrypto (podpis v1).
+       * @type {Object<string,string>}
+       */
+      const OIDH = {
+        "1.3.14.3.2.26": "SHA-1",
+        "2.16.840.1.101.3.4.2.1": "SHA-256",
+        "2.16.840.1.101.3.4.2.2": "SHA-384",
+        "2.16.840.1.101.3.4.2.3": "SHA-512"
+      };
+      /**
+       * OID algorytmu podpisu → użyty skrót (podpis v1).
+       * @type {Object<string,string>}
+       */
+      const OIDS = {
+        "1.2.840.113549.1.1.5": "SHA-1",
+        "1.2.840.113549.1.1.11": "SHA-256",
+        "1.2.840.113549.1.1.12": "SHA-384",
+        "1.2.840.113549.1.1.13": "SHA-512",
+        "1.2.840.10045.4.1": "SHA-1",
+        "1.2.840.10045.4.3.2": "SHA-256",
+        "1.2.840.10045.4.3.3": "SHA-384",
+        "1.2.840.10045.4.3.4": "SHA-512"
+      };
+      /**
+       * Ujednolica nazwę skrótu (np. SHA1 → SHA-1).
+       * @param {string} s
+       * @returns {string}
+       */
+      const hn = s => s.toUpperCase().replace("SHA-", "SHA").replace("SHA", "SHA-");
+      /**
+       * Dekoduje base64 do bajtów.
+       * @param {string} s
+       * @returns {Uint8Array}
+       */
+      const b64 = s => Uint8Array.from(atob(s.trim()), c => c.charCodeAt(0));
+      /**
+       * Bajty → łańcuch binarny (1 znak = 1 bajt), do obliczeń na przesunięciach.
+       * @param {Uint8Array} u
+       * @returns {string}
+       */
+      const bin = u => {
+        let s = "";
+        for (let i = 0; i < u.length; i += 8192)
+          s += String.fromCharCode.apply(null, u.subarray(i, i + 8192));
+        return s;
+      };
+      /**
+       * Łańcuch binarny → bajty (odwrotność bin).
+       * @param {string} s
+       * @returns {Uint8Array}
+       */
+      const unb = s => Uint8Array.from(s, c => c.charCodeAt(0));
+      /**
+       * Dekoduje nazwę z manifestu (UTF-8 zapisane bajtowo).
+       * @param {string} s
+       * @returns {string}
+       */
+      const nm = s => {
+        try {
+          return decodeURIComponent(escape(s));
+        }
+        catch (_) {
+          return s;
+        }
+      };
+      /**
+       * Dzieli MANIFEST.MF/.SF na sekcje, zachowując bajty łącznie z pustą linią (potrzebne do skrótów sekcji).
+       * @param {string} s
+       * @returns {string[]}
+       */
+      const secs = s => {
+        const r = [];
+        let p = 0;
+        const re = /\r?\n\r?\n/g;
+        let m;
+        while ((m = re.exec(s))) {
+          r.push(s.slice(p, m.index + m[0].length));
+          p = m.index + m[0].length;
+        }
+        if (s.slice(p).trim())
+          r.push(s.slice(p));
+        return r;
+      };
+      /**
+       * Odczytuje atrybuty „Klucz: wartość” z sekcji (łączy zawinięte linie).
+       * @param {string} sec
+       * @returns {Object<string,string>}
+       */
+      const attrs = sec => {
+        const o = {};
+        sec.replace(/\r?\n /g, "").split(/\r?\n/).forEach(l => {
+          const i = l.indexOf(": ");
+          if (i > 0)
+            o[l.slice(0, i)] = l.slice(i + 2);
+        });
+        return o;
+      };
+      /**
+       * Znajduje atrybut „SHA-…-Digest” w sekcji.
+       * @param {Object<string,string>} o
+       * @returns {(Array|null)} [algorytm, skrót base64]
+       */
+      const dkey = o => {
+        for (const k in o) {
+          const m = /^(SHA-?\d+)-Digest$/i.exec(k);
+          if (m)
+            return [hn(m[1]), o[k]];
+        }
+        return null;
+      };
+      /**
+       * Weryfikuje podpis v1 (JAR): podpis pliku .SF, skrót MANIFEST.MF (lub skróty sekcji), skróty wszystkich plików oraz brak plików dodanych po podpisaniu.
+       * @param {Object} e wpis pliku .RSA/.DSA/.EC
+       * @param {Uint8Array} d zawartość pliku PKCS#7
+       * @param {Cert} cert certyfikat podpisującego
+       * @returns {Promise<Verdict>}
+       */
+      async function verifyV1(e, d, cert) {
+        const base = e.name.replace(/\.[^.\/]+$/, "");
+        const sfE = entries.find(x => x.name.toUpperCase() === base.toUpperCase() + ".SF");
+        const mfE = entries.find(x => x.name.toUpperCase() === "META-INF/MANIFEST.MF");
+        if (!sfE || !mfE)
+          return { ok: false, msg: M("noSf") };
+        const sf = await data(sfE), mf = await data(mfE);
+        const ci = tlv(d, 0), ex = kids(d, ci)[1], sd = kids(d, kids(d, ex)[0]);
+        const s = kids(d, kids(d, sd[sd.length - 1])[0]);
+        let i = 3, sa = null;
+        if (s[3].tag === 0xa0) {
+          sa = s[3];
+          i = 4;
+        }
+        const dAlg = OIDH[oid(
+          d,
+          kids(d, s[2])[0]
+        )], sigOid = oid(
+          d,
+          kids(d, s[i])[0]
+        ), sig = d.slice(
+          s[i + 1].start,
+          s[i + 1].end
+        );
+        if (!dAlg)
+          return { ok: null, msg: M("algH") };
+        let signed = sf;
+        if (sa) {
+          signed = d.slice(sa.off, sa.end);
+          signed[0] = 0x31;
+          let md = null;
+          for (const at of kids(d, sa)) {
+            const k = kids(d, at);
+            if (oid(d, k[0]) === "1.2.840.113549.1.9.4") {
+              const o = kids(d, k[1])[0];
+              md = d.slice(o.start, o.end);
+            }
+          }
+          if (!md || !eq(md, await sha(dAlg, sf)))
+            return { ok: false, msg: M("sfDig") };
+        }
+        const hs = OIDS[sigOid] || dAlg;
+        let valid = false;
+        try {
+          if (cert.curve) {
+            const key = await crypto.subtle.importKey(
+              "spki",
+              cert.spki,
+              { name: "ECDSA", namedCurve: cert.curve[0] },
+              false,
+              ["verify"]
+            );
+            valid = await crypto.subtle.verify(
+              { name: "ECDSA", hash: hs },
+              key,
+              derToRaw(sig, cert.curve[1]),
+              signed
+            );
+          }
+          else if (cert.keyOid === "1.2.840.113549.1.1.1" && sigOid !== "1.2.840.113549.1.1.10") {
+            const key = await crypto.subtle.importKey(
+              "spki",
+              cert.spki,
+              { name: "RSASSA-PKCS1-v1_5", hash: hs },
+              false,
+              ["verify"]
+            );
+            valid = await crypto.subtle.verify({ name: "RSASSA-PKCS1-v1_5" }, key, sig, signed);
+          }
+          else
+            return { ok: null, msg: M("v1Uns") };
+        }
+        catch (_) {
+          valid = false;
+        }
+        if (!valid)
+          return { ok: false, msg: M("v1Bad") };
+        const mfS = bin(mf), sfSecs = secs(bin(sf)), sfMain = attrs(
+          sfSecs[0] || ""
+        ), mfSecs = secs(mfS).slice(1);
+        let found = false, pass = true, weak = false;
+        for (const k in sfMain) {
+          const m = /^(SHA-?\d+)-Digest-Manifest$/i.exec(k);
+          if (m) {
+            found = true;
+            const a = hn(m[1]);
+            if (a === "SHA-1")
+              weak = true;
+            if (!eq(await sha(a, mf), b64(sfMain[k])))
+              pass = false;
+          }
+        }
+        if (!(found && pass)) {
+          const byName = {};
+          mfSecs.forEach(x => {
+            byName[nm(attrs(x).Name || "")] = x;
+          });
+          const sfs = sfSecs.slice(1);
+          let okAll = sfs.length > 0;
+          for (const x of sfs) {
+            const a = attrs(x), dk = dkey(a), ms = byName[nm(a.Name || "")];
+            if (!dk || !ms || !eq(await sha(dk[0], unb(ms)), b64(dk[1]))) {
+              okAll = false;
+              break;
+            }
+          }
+          if (!okAll)
+            return { ok: false, msg: M("mfCh") };
+          if (Object.keys(byName).some(n => !sfs.some(x => nm(attrs(x).Name || "") === n)))
+            return { ok: false, msg: M("mfEx") };
+        }
+        const byN = new Map(entries.map(t => [t.name, t])), listed = new Set();
+        let n = 0;
+        for (const x of mfSecs) {
+          const a = attrs(x), name = nm(a.Name || ""), dk = dkey(a);
+          if (!name)
+            continue;
+          const en = byN.get(name);
+          if (!en)
+            return { ok: false, msg: M("miss", name) };
+          if (!dk)
+            continue;
+          if (dk[0] === "SHA-1")
+            weak = true;
+          if (!eq(await sha(dk[0], await data(en)), b64(dk[1])))
+            return { ok: false, msg: M("fmod", name) };
+          listed.add(name);
+          n++;
+        }
+        for (const t of entries) {
+          if (t.name.endsWith("/") || listed.has(t.name) || /^META-INF\/(MANIFEST\.MF|[^\/]+\.(SF|RSA|DSA|EC))$/i.test(
+            t.name
+          ))
+            continue;
+          return { ok: false, msg: M("fadd", t.name) };
+        }
+        return { ok: true, msg: M(weak ? "v1okw" : "v1ok", n) };
+      }
+      /* v1 (JAR) */
+      const v1 = entries.filter(e => /^META-INF\/[^\/]+\.(RSA|DSA|EC)$/i.test(e.name));
+      for (const e of v1) {
+        try {
+          const d = await data(e);
+          const ci = tlv(d, 0);
+          const ex = kids(d, ci)[1];
+          const sd = kids(d, kids(d, ex)[0]);
+          const certs = sd.find(t => t.tag === 0xa0);
+          if (!certs)
+            continue;
+          const c = kids(d, certs)[0];
+          const cert = await parseCert(d.slice(c.off, c.end));
+          let v;
+          try {
+            v = await verifyV1(e, d, cert);
+          }
+          catch (err) {
+            v = { ok: null, msg: M("v1fail", err.message) };
+          }
+          R.signers.push({ scheme: "v1 (JAR) – " + e.name, cert, v });
+        }
+        catch (err) {
+          R.notes.push(M("rdErr1", e.name, err.message));
+        }
+      }
+      if (v1.length)
+        R.schemes.push("v1");
+      /* v2 / v3 */
+      let bs = -1;
+      const pairs = [];
+      if (cdOff >= 32 && String.fromCharCode(...b.subarray(cdOff - 16, cdOff)) === "APK Sig Block 42") {
+        const size = Number(dv.getBigUint64(cdOff - 24, true));
+        const st = cdOff - size - 8;
+        if (st >= 0 && Number(dv.getBigUint64(st, true)) === size) {
+          bs = st;
+          let q = st + 8;
+          while (q < cdOff - 24) {
+            const l = Number(dv.getBigUint64(q, true));
+            pairs.push({ id: dv.getUint32(q + 8, true), s: q + 12, e: q + 8 + l });
+            q += 8 + l;
+          }
+        }
+      }
+      /**
+       * Wyszukuje certyfikaty w atrybucie historii rotacji (heurystyka: certyfikat poprzedzony własną długością). Podpisów łańcucha nie weryfikuje.
+       * @param {number} s początek wartości atrybutu
+       * @param {number} e koniec wartości atrybutu
+       * @returns {Promise<Cert[]>} od najstarszego do bieżącego
+       */
+      async function readLineage(s, e) {
+        const out = [];
+        for (let i = s + 4; i + 4 < e; i++) {
+          if (b[i] !== 0x30 || b[i + 1] !== 0x82)
+            continue;
+          const l = ((b[i + 2] << 8) | b[i + 3]) + 4;
+          if (i + l > e || dv.getUint32(i - 4, true) !== l)
+            continue;
+          try {
+            out.push(await parseCert(b.slice(i, i + l)));
+            i += l - 1;
+          }
+          catch (_) { }
+        }
+        return out;
+      }
+      const dig = {};
+      /**
+       * Liczy skrót zawartości APK wg schematu v2/v3 (bloki 1 MB; sekcje: wpisy ZIP, katalog centralny, EOCD z podmienionym offsetem).
+       * @param {string} hn "SHA-256" lub "SHA-512"
+       * @returns {Promise<Uint8Array>}
+       */
+      async function content(hn) {
+        if (dig[hn])
+          return dig[hn];
+        const dl = hn === "SHA-256" ? 32 : 64;
+        const eocd = b.slice(eo);
+        new DataView(eocd.buffer).setUint32(16, bs, true);
+        const parts = [];
+        for (const s of [b.subarray(0, bs), b.subarray(cdOff, eo), eocd])
+          for (let o = 0; o < s.length; o += 1048576) {
+            const c = s.subarray(o, Math.min(o + 1048576, s.length));
+            const m = new Uint8Array(5 + c.length);
+            m[0] = 0xa5;
+            new DataView(m.buffer).setUint32(1, c.length, true);
+            m.set(c, 5);
+            parts.push(await sha(hn, m));
+          }
+        const tt = new Uint8Array(5 + parts.length * dl);
+        tt[0] = 0x5a;
+        new DataView(tt.buffer).setUint32(1, parts.length, true);
+        parts.forEach((x, i) => tt.set(x, 5 + i * dl));
+        return dig[hn] = await sha(hn, tt);
+      }
+      /**
+       * Weryfikuje podpisującego v2/v3: podpisy kryptograficzne (RSA, RSA-PSS, ECDSA) i zgodność skrótu zawartości z zapisanym w podpisie.
+       * @param {Object} sg {sigs, digests, signed}
+       * @param {Cert} cert
+       * @returns {Promise<Verdict>}
+       */
+      async function verify(sg, cert) {
+        const ok = [];
+        let any = false;
+        for (const s of sg.sigs) {
+          const a = ALG[s.alg];
+          if (!a || a[1] === "dsa") {
+            ok.push("0x" + s.alg.toString(16));
+            continue;
+          }
+          any = true;
+          let valid = false;
+          try {
+            let key, alg, sig = s.sig;
+            if (a[1] === "ec") {
+              if (!cert.curve)
+                throw 0;
+              key = await crypto.subtle.importKey(
+                "spki",
+                cert.spki,
+                { name: "ECDSA", namedCurve: cert.curve[0] },
+                false,
+                ["verify"]
+              );
+              alg = { name: "ECDSA", hash: a[0] };
+              sig = derToRaw(sig, cert.curve[1]);
+            }
+            else if (a[1] === "pss") {
+              key = await crypto.subtle.importKey(
+                "spki",
+                cert.spki,
+                { name: "RSA-PSS", hash: a[0] },
+                false,
+                ["verify"]
+              );
+              alg = { name: "RSA-PSS", saltLength: a[2] };
+            }
+            else {
+              key = await crypto.subtle.importKey(
+                "spki",
+                cert.spki,
+                { name: "RSASSA-PKCS1-v1_5", hash: a[0] },
+                false,
+                ["verify"]
+              );
+              alg = { name: "RSASSA-PKCS1-v1_5" };
+            }
+            valid = await crypto.subtle.verify(alg, key, sig, sg.signed);
+          }
+          catch (e) {
+            valid = false;
+          }
+          if (!valid)
+            return { ok: false, msg: M("sigBad") };
+          const d = sg.digests.find(x => x.alg === s.alg);
+          if (!d)
+            return { ok: false, msg: M("noDig") };
+          const c = await content(a[0]);
+          if (!eq(c, d.digest))
+            return { ok: false, msg: M("tamper") };
+        }
+        return any ? { ok: true, msg: M("sigOk") } : { ok: null, msg: M("noAlg", ok.join(", ")) };
+      }
+      for (const pr of pairs) {
+        const ver = pr.id === 0x7109871a ? 2 : (pr.id === 0xf05368c0 || pr.id === 0x1b93ad61) ? 3 : 0;
+        if (!ver)
+          continue;
+        R.schemes.push("v" + ver + (pr.id === 0x1b93ad61 ? ".1" : ""));
+        let q = pr.s;
+        const end = q + dv.getUint32(q, true) + 4;
+        q += 4;
+        while (q < end) {
+          const sl = dv.getUint32(q, true);
+          q += 4;
+          const se = q + sl;
+          try {
+            const sdl = dv.getUint32(q, true), sds = q + 4, sde = sds + sdl;
+            let w = sde + (ver === 3 ? 8 : 0);
+            const sigs = [];
+            const sle = w + 4 + dv.getUint32(w, true);
+            w += 4;
+            while (w < sle) {
+              const l = dv.getUint32(w, true);
+              sigs.push(
+                {
+                  alg: dv.getUint32(w + 4, true),
+                  sig: b.slice(w + 12, w + 12 + dv.getUint32(w + 8, true))
+                }
+              );
+              w += 4 + l;
+            }
+            let x = sds;
+            const dgl = dv.getUint32(x, true);
+            let y = x + 4;
+            const dge = y + dgl;
+            const digests = [];
+            while (y < dge) {
+              const l = dv.getUint32(y, true);
+              digests.push(
+                {
+                  alg: dv.getUint32(y + 4, true),
+                  digest: b.slice(y + 12, y + 12 + dv.getUint32(y + 8, true))
+                }
+              );
+              y += 4 + l;
+            }
+            x = dge;
+            const cl = dv.getUint32(x, true);
+            y = x + 4;
+            const ce = y + cl;
+            const certs = [];
+            while (y < ce) {
+              const l = dv.getUint32(y, true);
+              certs.push(b.slice(y + 4, y + 4 + l));
+              y += 4 + l;
+            }
+            const cert = await parseCert(certs[0]);
+            let lineage = [];
+            if (ver === 3) {
+              try {
+                let z = ce + 8;
+                if (z + 4 <= sde) {
+                  const al = dv.getUint32(z, true);
+                  let m = z + 4;
+                  const ae = Math.min(m + al, sde);
+                  while (m + 8 <= ae) {
+                    const l = dv.getUint32(m, true), id = dv.getUint32(m + 4, true);
+                    if (id === 0x3ba06f8c)
+                      lineage = await readLineage(m + 8, m + 4 + l);
+                    m += 4 + l;
+                  }
+                }
+              }
+              catch (_) { }
+            }
+            const sg = { sigs, digests, signed: b.slice(sds, sde) };
+            const v = await verify(sg, cert);
+            R.signers.push({ scheme: "v" + ver + (pr.id === 0x1b93ad61 ? ".1" : ""), cert, v, lineage });
+          }
+          catch (err) {
+            R.notes.push(M("rdErr", ver, err.message));
+          }
+          q = se;
+        }
+      }
+      if (!R.signers.length) {
+        const inner = entries.filter(e => /\.apk$/i.test(e.name));
+        if (inner.length) {
+          const pick = inner.find(e => /(^|\/)base\.apk$/i.test(e.name)) || inner[0];
+          const mk = async (e) => {
+            const u = await data(e);
+            const ab = u.buffer.slice(u.byteOffset, u.byteOffset + u.byteLength);
+            return { name: file.name + " › " + e.name, size: ab.byteLength, arrayBuffer: async () => ab };
+          };
+          const sub = await analyze(await mk(pick));
+          const baseFp = new Set(sub.signers.map(s => s.cert.fp)), badN = [];
+          let okN = 0;
+          const parts = [{ name: pick.name, r: sub, same: true }];
+          for (const e of inner) {
+            if (e === pick)
+              continue;
+            try {
+              const r = await analyze(await mk(e));
+              const same = r.signers.every(s => baseFp.has(s.cert.fp));
+              parts.push({ name: e.name, r, same });
+              if (same && r.signers.every(s => s.v.ok !== false))
+                okN++;
+              else
+                badN.push(e.name);
+            }
+            catch (err) {
+              parts.push({ name: e.name, err: err.message });
+              badN.push(e.name);
+            }
+          }
+          sub.parts = parts;
+          const je = entries.find(e => /\.json$/i.test(e.name));
+          if (je) {
+            try {
+              const j = JSON.parse(new TextDecoder().decode(await data(je)));
+              sub.notes.push(
+                M(
+                  "bundleInfo",
+                  j.app_name || "?",
+                  j.package_name || "?",
+                  j.version_name || "?",
+                  j.version_code || "?"
+                )
+              );
+            }
+            catch (_) { }
+          }
+          sub.notes.push(M("bundle", pick.name, inner.length));
+          if (badN.length)
+            sub.alerts = [M("splitBad", badN.join(", "))];
+          else if (okN)
+            sub.notes.push(M("splitOk", okN));
+          return sub;
+        }
+        throw E(M("noSig", file.name), R.notes);
+      }
+      if (new Set(R.signers.map(s => s.cert.fp)).size > 1)
+        R.notes.push(M("differ"));
+      return R;
+    }
+
+    /* ---------- UI ---------- */
+
+    /**
+     * Wybrane pliki: A (zaufany) i B (do sprawdzenia).
+     * @type {{A:?File,B:?File}}
+     */
+    const files = { A: null, B: null };
+
+    /**
+     * Podpina wybór pliku (kliknięcie, klawiatura, przeciąganie) do strefy A lub B.
+     * @param {"A"|"B"} k
+     */
+    function bind(k) {
+      const d = $("#d" + k), i = $("#f" + k);
+      const set = f => {
+        if (!f)
+          return;
+        files[k] = f;
+        $("#n" + k).textContent = f.name + " (" + (f.size / 1048576).toFixed(1) + " MB)";
+        $("#go").disabled = !(files.A || files.B);
+      };
+      d.onclick = () => i.click();
+      d.onkeydown = e => {
+        if (e.key === "Enter" || e.key === " ")
+          i.click();
+      };
+      i.onchange = () => set(i.files[0]);
+      d.ondragover = e => {
+        e.preventDefault();
+        d.classList.add("over");
+      };
+      d.ondragleave = () => d.classList.remove("over");
+      d.ondrop = e => {
+        e.preventDefault();
+        d.classList.remove("over");
+        set(e.dataTransfer.files[0]);
+      };
+    }
+    bind("A");
+    bind("B");
+
+    /**
+     * Na komputerze ustawiana jest jawna lista rozszerzeń w polu wyboru pliku; na urządzeniach mobilnych pole nie ma filtra.
+     * @type {boolean}
+     */
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(
+      navigator.userAgent
+    ) || (matchMedia(
+      "(pointer: coarse)"
+    ).matches && !matchMedia(
+      "(hover: hover)"
+    ).matches);
+    if (!isMobile)
+      ["#fA", "#fB"].forEach(s => $(s).setAttribute("accept", ".apk,.apk+,.apks,.xapk,.apkm,.aab,.zip"));
+
+    /**
+     * Tworzy plakietkę statusu.
+     * @param {string} lv klasa: ok|warn|bad|neu
+     * @param {string} x tekst
+     * @returns {HTMLElement}
+     */
+    const pill = (lv, x) => h("span", { class: "pill " + lv }, x);
+
+    /**
+     * Poziom plakietki dla werdyktu (true→ok, false→bad, null→warn).
+     * @param {Verdict} v
+     * @returns {string}
+     */
+    const lvl = v => v.ok === true ? "ok" : v.ok === false ? "bad" : "warn";
+
+    /**
+     * Data w formacie RRRR-MM-DD lub „?” dla niepoprawnej.
+     * @param {Date} d
+     * @returns {string}
+     */
+    const dstr = d => isNaN(d) ? "?" : d.toISOString().slice(0, 10);
+
+    /**
+     * Wiersz werdyktu z plakietką; teksty źródeł zamieniane są na linki.
+     * @param {"ok"|"warn"|"bad"} lv
+     * @param {*} x treść
+     * @returns {HTMLElement}
+     */
+    function V(lv, x) {
+      return h(
+        "div",
+        { class: "verd " + lv },
+        pill(lv, lv === "ok" ? t("lOk") : lv === "warn" ? t("lWa") : t("lBa")),
+        h("span", null, linkify(x))
+      );
+    }
+
+    /**
+     * Karta wyniku jednego APK: dane pliku, podpisy, certyfikaty, rozpoznanie, historia rotacji i uwagi.
+     * @param {string} title
+     * @param {AnalysisResult} R
+     * @returns {HTMLElement}
+     */
+    function card(title, R) {
+      const c = h("div", { class: "card" }, h("h2", null, title));
+      c.append(
+        h(
+          "dl",
+          null,
+          h("dt", null, t("file")),
+          h("dd", { class: "fnm" }, R.name),
+          h("dt", null, t("size")),
+          h("dd", null, (R.size / 1048576).toFixed(2) + " MB"),
+          h("dt", null, t("fsha")),
+          h("dd", { class: "mono" }, R.fileSha),
+          h("dt", null, t("sch")),
+          h("dd", null, R.schemes.join(", "))
+        )
+      );
+      R.signers.forEach(s => {
+        const x = s.cert;
+        c.append(h("div", { class: "signer" }, pill(
+          lvl(s.v),
+          s.v.ok === true ? t("pOk") : s.v.ok === false ? t("pBad") : t("pNv")
+        ), " ", h(
+          "b",
+          null,
+          s.scheme
+        ), (() => {
+          const k = findKnown(x);
+          return k ? [" ", pill(k.test ? "warn" : "ok", t("recog", k.name))] : null;
+        })(), h(
+          "p",
+          { class: "muted", style: "margin:4px 0" },
+          tx(s.v.msg)
+        ), h(
+          "dl",
+          null,
+          h("dt", null, t("subj")),
+          h("dd", null, x.subject || "—"),
+          h("dt", null, t("iss")),
+          h("dd", null, x.issuer + (x.selfSigned ? t("self") : "")),
+          h("dt", null, t("val")),
+          h("dd", null, dstr(x.from) + " → " + dstr(x.to)),
+          h("dt", null, t("ser")),
+          h("dd", { class: "mono" }, x.serial),
+          h("dt", null, t("key")),
+          h("dd", null, x.key),
+          h("dt", null, t("c256")),
+          h("dd", { class: "mono" }, x.fp),
+          h("dt", null, t("c1")),
+          h("dd", { class: "mono" }, x.fp1)
+        )));
+      });
+      R.signers.forEach(s => {
+        if (s.lineage && s.lineage.length > 1)
+          c.append(h("div", { class: "signer" }, h(
+            "b",
+            null,
+            t("lin", s.scheme, s.lineage.length)
+          ), h(
+            "p",
+            { class: "muted", style: "margin:4px 0" },
+            t("linNote")
+          ), s.lineage.map((x, i) => {
+            const k = findKnown(x);
+            return h(
+              "p",
+              { style: "margin:6px 0" },
+              h("span", { class: "muted" }, (i + 1) + ". "),
+              i === s.lineage.length - 1 ? pill("neu", t("linCur")) : null,
+              " ",
+              k ? pill(k.test ? "warn" : "ok", t("recog", k.name)) : null,
+              " ",
+              x.subject || "—",
+              h("br"),
+              h("span", { class: "mono" }, x.fp)
+            );
+          })));
+      });
+      R.notes.forEach(n => c.append(h("p", { class: "muted" }, "• " + tx(n))));
+      return c;
+    }
+
+    /**
+     * Dopisuje do wyniku linie dla jednego APK: odcisk, integralność, certyfikat debug, rozpoznanie producenta i historię rotacji.
+     * @param {HTMLElement} vd kontener wyniku
+     * @param {AnalysisResult} R
+     * @param {string} n etykieta pliku
+     */
+    function fileLines(vd, R, n) {
+      vd.append(
+        h(
+          "div",
+          { class: "verd" },
+          pill("neu", t("fpOf", n)),
+          h("span", { class: "mono" }, [...new Set(R.signers.map(s => s.cert.fp))].join("  |  "))
+        )
+      );
+      const bad = R.signers.find(s => s.v.ok === false), good = R.signers.some(s => s.v.ok === true);
+      vd.append(
+        bad ? V("bad", t("vBad", n, tx(bad.v.msg))) : good ? V("ok", t("intact", n)) : V("warn", t("unk", n))
+      );
+      if (R.signers.some(s => /Android Debug/i.test(s.cert.subject)))
+        vd.append(V("warn", t("dbg", n)));
+      const seen = new Set();
+      R.signers.forEach(s => {
+        const k = findKnown(s.cert);
+        if (k && !seen.has(k.name)) {
+          seen.add(k.name);
+          vd.append(
+            k.test ? V("warn", t("recTest", n, k.name)) : V("ok", t("recVendor", n, k.name, k.src))
+          );
+        }
+      });
+      linLines(vd, R, n);
+    }
+
+    /**
+     * Dopisuje informację, gdy w historii rotacji występuje znany certyfikat.
+     * @param {HTMLElement} vd
+     * @param {AnalysisResult} R
+     * @param {string} n
+     */
+    function linLines(vd, R, n) {
+      const seen = new Set();
+      R.signers.forEach(s => (s.lineage || []).slice(0, -1).forEach(x => {
+        const k = findKnown(x);
+        if (k && !k.test && !seen.has(k.name)) {
+          seen.add(k.name);
+          vd.append(V("ok", t("recLin", n, k.name)));
+        }
+      }));
+    }
+
+    /**
+     * Porównuje certyfikat z odciskiem SHA-256 wpisanym lub wybranym przez użytkownika.
+     * @param {HTMLElement} vd
+     * @param {AnalysisResult} R
+     * @param {string} n
+     * @param {boolean} first czy pokazać ostrzeżenie o błędnej długości odcisku
+     */
+    function expLines(vd, R, n, first) {
+      const ex = $("#exp").value.replace(/[^0-9a-f]/gi, "").toUpperCase();
+      if (!ex.length)
+        return;
+      if (ex.length !== 64) {
+        if (first)
+          vd.append(V("warn", t("expLen", ex.length)));
+        return;
+      }
+      const m = R.signers.some(s => s.cert.fp.replace(/:/g, "") === ex);
+      vd.append(V(m ? "ok" : "bad", t(m ? "expOk" : "expNo", n)));
+    }
+
+    /**
+     * Kolumna z kartami (jeden plik wraz z APK z jego paczki).
+     * @param {HTMLElement[]} a
+     * @returns {HTMLElement}
+     */
+    const col = a => h("div", { class: "col" }, a);
+
+    /**
+     * Karta pliku oraz karty APK z jego paczki; split z innym certyfikatem dostaje czerwone oznaczenie.
+     * @param {string} title
+     * @param {AnalysisResult} R
+     * @returns {HTMLElement[]}
+     */
+    const cardsOf = (title, R) => [card(title, R), ...(R.parts || []).slice(1).map(p => {
+        if (p.err)
+          return h("div", { class: "card" }, h("h2", null, p.name), V("bad", p.err));
+        const c = card(p.name, p.r);
+        if (!p.same)
+          c.insertBefore(V("bad", t("diffCert")), c.children[1]);
+        return c;
+      })];
+
+    /**
+     * Wyrównuje wysokość wiersza z nazwą pliku w pierwszych kartach kolumn.
+     */
+    function eqh() {
+      const d = [...document.querySelectorAll("#det>.col>.card:first-child .fnm")];
+      d.forEach(x => x.style.minHeight = "");
+      if (d.length < 2)
+        return;
+      const m = Math.max(...d.map(x => x.offsetHeight));
+      d.forEach(x => x.style.minHeight = m + "px");
+    }
+    addEventListener("resize", eqh);
+
+    /**
+     * Rysuje wyniki z zmiennej last: werdykty (jeden plik lub porównanie A/B), karty i uwagę końcową.
+     */
+    function render() {
+      if (!last)
+        return;
+      const vd = $("#verd"), det = $("#det");
+      vd.replaceChildren();
+      det.classList.toggle("one", last.oks.length === 1);
+      $("#out").style.display = "block";
+      const cardOf = r => card(r.k === "A" ? t("cA") : t("cB"), r);
+      if (last.errs.length) {
+        last.errs.forEach(e => {
+          vd.append(V("bad", t("fileErr", e.k, e.name, tx(e.m))));
+          e.notes.forEach(n => vd.append(V("warn", tx(n))));
+        });
+        det.replaceChildren(...last.oks.map(r => col(cardsOf(r.k === "A" ? t("cA") : t("cB"), r))));
+        $("#notes").textContent = "";
+        eqh();
+        return;
+      }
+      if (last.oks.length === 1) {
+        const R = last.oks[0], n = R.name;
+        vd.append(
+          h(
+            "div",
+            { class: "verd" },
+            pill("neu", t("fpOf", n)),
+            h("span", { class: "mono" }, [...new Set(R.signers.map(s => s.cert.fp))].join("  |  "))
+          )
+        );
+        const bad = R.signers.find(s => s.v.ok === false), good = R.signers.some(s => s.v.ok === true);
+        vd.append(
+          bad
+            ? V("bad", t("vBad", n, tx(bad.v.msg)))
+            : good ? V("ok", t("intact", n)) : V("warn", t("unk", n))
+        );
+        if (R.signers.some(s => /Android Debug/i.test(s.cert.subject)))
+          vd.append(V("warn", t("dbg", n)));
+        (R.alerts || []).forEach(a => vd.append(V("bad", tx(a))));
+        let rec = false;
+        const seen = new Set();
+        R.signers.forEach(s => {
+          const k = findKnown(s.cert);
+          if (k && !seen.has(k.name)) {
+            seen.add(k.name);
+            rec = true;
+            vd.append(
+              k.test ? V("warn", t("recTest", n, k.name)) : V("ok", t("recVendor", n, k.name, k.src))
+            );
+          }
+        });
+        const ex = $("#exp").value.replace(/[^0-9a-f]/gi, "").toUpperCase();
+        if (ex.length) {
+          if (ex.length !== 64)
+            vd.append(V("warn", t("expLen", ex.length)));
+          else {
+            const m = R.signers.some(s => s.cert.fp.replace(/:/g, "") === ex);
+            vd.append(V(m ? "ok" : "bad", t(m ? "expOk" : "expNo", n)));
+          }
+        }
+        else if (!rec)
+          vd.append(h("div", { class: "verd" }, pill("neu", "i"), h("span", null, t("hintOne"))));
+        linLines(vd, R, n);
+        (R.parts || []).slice(1).forEach(p => {
+          const pn = R.name.split(" › ")[0] + " › " + p.name;
+          if (p.err) {
+            vd.append(V("bad", t("vBad", pn, p.err)));
+            return;
+          }
+          fileLines(vd, p.r, pn);
+          expLines(vd, p.r, pn, false);
+        });
+        det.replaceChildren(col(cardsOf(t("cOne"), R)));
+        $("#notes").textContent = t("note");
+        eqh();
+        return;
+      }
+      const [A, B] = last.oks;
+      [["A", A], ["B", B]].forEach(
+        ([n, R]) => vd.append(
+          h(
+            "div",
+            { class: "verd" },
+            pill("neu", t("fpOf", n)),
+            h("span", { class: "mono" }, [...new Set(R.signers.map(s => s.cert.fp))].join("  |  "))
+          )
+        )
+      );
+      const sa = new Set(A.signers.map(s => s.cert.fp)), sb = new Set(B.signers.map(s => s.cert.fp));
+      const common = [...sa].filter(x => sb.has(x));
+      const suba = new Set(A.signers.map(s => s.cert.subject)), subb = B.signers.map(s => s.cert.subject);
+      if (common.length)
+        vd.append(V("ok", t("same", common[0])));
+      else if (subb.some(s => suba.has(s)))
+        vd.append(V("bad", t("sameSubj")));
+      else
+        vd.append(V("bad", t("diff")));
+      [["A", A], ["B", B]].forEach(([n, R]) => {
+        const bad = R.signers.find(s => s.v.ok === false), good = R.signers.some(s => s.v.ok === true);
+        if (bad)
+          vd.append(V("bad", t("vBad", n, tx(bad.v.msg))));
+        else if (good)
+          vd.append(V("ok", t("intact", n)));
+        else
+          vd.append(V("warn", t("unk", n)));
+        if (R.signers.some(s => /Android Debug/i.test(s.cert.subject)))
+          vd.append(V("warn", t("dbg", n)));
+        linLines(vd, R, n);
+        (R.parts || []).slice(1).forEach(p => {
+          const pn = n + " › " + p.name;
+          if (p.err) {
+            vd.append(V("bad", t("vBad", pn, p.err)));
+            return;
+          }
+          fileLines(vd, p.r, pn);
+          expLines(vd, p.r, pn, false);
+        });
+        (R.alerts || []).forEach(a => vd.append(V("bad", tx(a))));
+        const seen = new Set();
+        R.signers.forEach(s => {
+          const k = findKnown(s.cert);
+          if (k && !seen.has(k.name)) {
+            seen.add(k.name);
+            vd.append(
+              k.test ? V("warn", t("recTest", n, k.name)) : V("ok", t("recVendor", n, k.name, k.src))
+            );
+          }
+        });
+      });
+      const ex = $("#exp").value.replace(/[^0-9a-f]/gi, "").toUpperCase();
+      if (ex.length) {
+        if (ex.length !== 64)
+          vd.append(V("warn", t("expLen", ex.length)));
+        else
+          [["A", A], ["B", B]].forEach(([n, R]) => {
+            const m = R.signers.some(s => s.cert.fp.replace(/:/g, "") === ex);
+            vd.append(V(m ? "ok" : "bad", t(m ? "expOk" : "expNo", n)));
+          });
+      }
+      det.replaceChildren(col(cardsOf(t("cA"), A)), col(cardsOf(t("cB"), B)));
+      $("#notes").textContent = t("note");
+      eqh();
+    }
+
+    /**
+     * Stosuje język: teksty statyczne, placeholder, listę znanych odcisków, przyciski, następnie przerysowuje wyniki.
+     */
+    function applyLang() {
+      document.documentElement.lang = lang;
+      document.title = t("title");
+      document.querySelectorAll("[data-i]").forEach(e => {
+        e.textContent = t(e.dataset.i);
+      });
+      $("#exp").placeholder = t("expP");
+      const kn = $("#kn"), keep = kn.value;
+      kn.replaceChildren(
+        h("option", { value: "" }, t("knPick")),
+        ...KNOWN.filter(k => k.sha256).map(k => h("option", { value: k.sha256 }, k.name + " – " + k.desc))
+      );
+      kn.value = keep;
+      kn.setAttribute("aria-label", t("knPick"));
+      $("#bpl").classList.toggle("on", lang === "pl");
+      $("#ben").classList.toggle("on", lang === "en");
+      [["#btl", "themeL"], ["#btd", "themeD"]].forEach(([s, k]) => {
+        $(s).title = t(k);
+        $(s).setAttribute("aria-label", t(k));
+      });
+      render();
+    }
+
+    /**
+     * Zmienia i zapamiętuje język.
+     * @param {"pl"|"en"} l
+     */
+    function setLang(l) {
+      lang = l;
+      try {
+        localStorage.setItem("apkLang", l);
+      }
+      catch (_) { }
+      applyLang();
+    }
+    $("#bpl").onclick = () => setLang("pl");
+    $("#ben").onclick = () => setLang("en");
+
+    /**
+     * Wybrany motyw („light”/„dark”) albo null = zgodnie z systemem.
+     * @type {?string}
+     */
+    let theme = null;
+    try {
+      theme = localStorage.getItem("apkTheme");
+    }
+    catch (_) { }
+    const mq = matchMedia("(prefers-color-scheme: dark)");
+
+    /**
+     * Ustawia atrybut data-theme na <html> i podświetla aktywny przycisk motywu.
+     */
+    function applyTheme() {
+      const dark = theme ? theme === "dark" : mq.matches;
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+      $("#btl").classList.toggle("on", !dark);
+      $("#btd").classList.toggle("on", dark);
+    }
+
+    /**
+     * Zmienia i zapamiętuje motyw.
+     * @param {"light"|"dark"} x
+     */
+    function setTheme(x) {
+      theme = x;
+      try {
+        localStorage.setItem("apkTheme", x);
+      }
+      catch (_) { }
+      applyTheme();
+    }
+    $("#btl").onclick = () => setTheme("light");
+    $("#btd").onclick = () => setTheme("dark");
+    mq.addEventListener("change", () => {
+      if (!theme)
+        applyTheme();
+    });
+
+    /**
+     * Obsługa przycisku analizy: analizuje wskazane pliki (jeden lub dwa), zapisuje wynik w last i rysuje go.
+     */
+    $("#go").onclick = async () => {
+      $("#out").style.display = "none";
+      $("#go").disabled = true;
+      $("#st").textContent = t("busy");
+      const oks = [], errs = [];
+      for (const k of ["A", "B"].filter(x => files[x])) {
+        try {
+          const r = await analyze(files[k]);
+          r.k = k;
+          oks.push(r);
+        }
+        catch (e) {
+          errs.push(
+            { k, name: files[k].name, m: e.m || M("raw", e && e.message || e), notes: e.notes || [] }
+          );
+        }
+      }
+      last = { oks, errs };
+      render();
+      $("#out").scrollIntoView({ behavior: "smooth" });
+      $("#st").textContent = "";
+      $("#go").disabled = !(files.A || files.B);
+    };
+    applyTheme();
+    applyLang();
+
+  </script>
+</body>
+</html>
